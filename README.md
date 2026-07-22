@@ -8,7 +8,8 @@
 - практические рекомендации сообщества `esphome_tion` за 2022–2026 годы;
 - диагностику проблем Bluetooth;
 - сравнение прямого Bluetooth, ESPHome BLE и UART;
-- основу для будущих автоматизаций и карточек интерфейса.
+- готовые автоматизации и сценарии;
+- Lovelace-карточки и полноценный дашборд.
 
 > Это независимая документация сообщества. Проект не связан с производителем TION.
 
@@ -18,6 +19,16 @@
 2. [FAQ и лучшие практики сообщества](docs/faq-community.md)
 3. [Диагностика неисправностей](docs/troubleshooting.md)
 4. [Способы интеграции и выбор архитектуры](docs/connection-options.md)
+5. [Автоматизации TION 4S](docs/automations.md)
+6. [Lovelace и дашборды](docs/lovelace.md)
+
+## Готовые примеры
+
+- [Автоматизации](examples/automations/tion-automations.yaml)
+- [Сценарии: тихо, обычно и Boost](examples/scripts/tion-scripts.yaml)
+- [Полный Lovelace-дашборд](examples/lovelace/tion-dashboard.yaml)
+
+Перед использованием замените условные entity ID на свои.
 
 ## Рекомендуемая архитектура для первого запуска
 
@@ -44,6 +55,8 @@ TION использует активное BLE-соединение. Прост�
 - [TionAPI/HA-tion](https://github.com/TionAPI/HA-tion);
 - [dentra/esphome-tion](https://github.com/dentra/esphome-tion);
 - [Bluetooth в Home Assistant](https://www.home-assistant.io/integrations/bluetooth/);
+- [автоматизаций Home Assistant](https://www.home-assistant.io/docs/automation/yaml/);
+- [Lovelace и Dashboard cards](https://www.home-assistant.io/dashboards/cards/);
 - экспортированной истории сообщества [@esphome_tion](https://t.me/esphome_tion) за 2022–2026 годы;
 - практической систематизации повторяющихся решений.
 
@@ -56,9 +69,16 @@ docs/
 ├── installation-bluetooth.md
 ├── faq-community.md
 ├── troubleshooting.md
-└── connection-options.md
+├── connection-options.md
+├── automations.md
+└── lovelace.md
+
+examples/
+├── automations/tion-automations.yaml
+├── scripts/tion-scripts.yaml
+└── lovelace/tion-dashboard.yaml
 ```
 
 ## Статус
 
-Первая версия базы знаний сосредоточена на Bluetooth-подключении. Разделы автоматизаций, Lovelace и подробного UART-подключения будут развиваться отдельно.
+Репозиторий включает установку, эксплуатацию, диагностику, автоматизации и интерфейс управления TION 4S. Подробный раздел аппаратного UART-подключения планируется отдельно.
