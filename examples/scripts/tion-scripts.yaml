@@ -1,0 +1,67 @@
+# Примеры scripts для TION 4S + HA-tion
+#
+# Вставьте содержимое в scripts.yaml либо создайте scripts через UI.
+# Замените climate.tion_breezer на свою сущность.
+
+ tion_quiet:
+  alias: TION — тихий режим
+  icon: mdi:weather-night
+  mode: restart
+  sequence:
+    - action: climate.turn_on
+      target:
+        entity_id: climate.tion_breezer
+    - delay: "00:00:03"
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        hvac_mode: fan_only
+    - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "1"
+
+ tion_normal:
+  alias: TION — обычный режим
+  icon: mdi:fan
+  mode: restart
+  sequence:
+    - action: climate.turn_on
+      target:
+        entity_id: climate.tion_breezer
+    - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "3"
+
+ tion_boost_20_minutes:
+  alias: TION — интенсивное проветривание 20 минут
+  icon: mdi:fan-plus
+  mode: restart
+  sequence:
+    - action: climate.turn_on
+      target:
+        entity_id: climate.tion_breezer
+    - delay: "00:00:03"
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        hvac_mode: fan_only
+    - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "6"
+    - delay: "00:20:00"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "2"
