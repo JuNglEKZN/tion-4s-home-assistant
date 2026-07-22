@@ -1,0 +1,139 @@
+title: TION
+views:
+  - title: Воздух
+    path: air
+    icon: mdi:air-filter
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: TION 4S
+            icon: mdi:air-filter
+
+          - type: tile
+            entity: climate.tion_breezer
+            name: Бризер
+            icon: mdi:air-filter
+            state_content:
+              - state
+              - temperature
+            features_position: bottom
+            features:
+              - type: climate-hvac-modes
+                hvac_modes:
+                  - fan_only
+                  - heat
+                  - "off"
+              - type: climate-fan-modes
+                style: dropdown
+                fan_modes:
+                  - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                  - "6"
+              - type: target-temperature
+
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: button
+                entity: script.tion_quiet
+                name: Тихо
+                icon: mdi:weather-night
+                tap_action:
+                  action: perform-action
+                  perform_action: script.turn_on
+                  target:
+                    entity_id: script.tion_quiet
+
+              - type: button
+                entity: script.tion_normal
+                name: Обычно
+                icon: mdi:fan
+                tap_action:
+                  action: perform-action
+                  perform_action: script.turn_on
+                  target:
+                    entity_id: script.tion_normal
+
+              - type: button
+                entity: script.tion_boost_20_minutes
+                name: Boost
+                icon: mdi:fan-plus
+                tap_action:
+                  action: perform-action
+                  perform_action: script.turn_on
+                  target:
+                    entity_id: script.tion_boost_20_minutes
+
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.living_room_window
+                state: "on"
+            card:
+              type: tile
+              entity: binary_sensor.living_room_window
+              name: Закройте окно
+              icon: mdi:window-open-variant
+              color: red
+
+          - type: conditional
+            conditions:
+              - entity: climate.tion_breezer
+                state: unavailable
+            card:
+              type: markdown
+              content: |
+                ## TION недоступен
+                Проверьте Bluetooth, питание, TION Remote и уровень сигнала.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Качество воздуха
+            icon: mdi:molecule-co2
+
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: tile
+                entity: sensor.living_room_co2
+                name: CO₂
+                icon: mdi:molecule-co2
+                vertical: true
+
+              - type: tile
+                entity: sensor.outdoor_temperature
+                name: Улица
+                icon: mdi:thermometer
+                vertical: true
+
+              - type: tile
+                entity: binary_sensor.living_room_window
+                name: Окно
+                icon: mdi:window-closed-variant
+                vertical: true
+
+          - type: gauge
+            entity: sensor.living_room_co2
+            name: CO₂
+            min: 400
+            max: 2000
+            needle: true
+            severity:
+              green: 400
+              yellow: 800
+              red: 1200
+
+          - type: history-graph
+            title: CO₂ за 12 часов
+            hours_to_show: 12
+            entities:
+              - entity: sensor.living_room_co2
+                name: CO₂
