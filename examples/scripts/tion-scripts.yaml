@@ -3,7 +3,7 @@
 # Вставьте содержимое в scripts.yaml либо создайте scripts через UI.
 # Замените climate.tion_breezer на свою сущность.
 
- tion_quiet:
+tion_quiet:
   alias: TION — тихий режим
   icon: mdi:weather-night
   mode: restart
@@ -24,7 +24,7 @@
       data:
         fan_mode: "1"
 
- tion_normal:
+tion_normal:
   alias: TION — обычный режим
   icon: mdi:fan
   mode: restart
@@ -39,7 +39,7 @@
       data:
         fan_mode: "3"
 
- tion_boost_20_minutes:
+tion_boost_20_minutes:
   alias: TION — интенсивное проветривание 20 минут
   icon: mdi:fan-plus
   mode: restart
