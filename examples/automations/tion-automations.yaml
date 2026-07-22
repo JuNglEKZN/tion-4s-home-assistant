@@ -1,0 +1,193 @@
+# Примеры автоматизаций для TION 4S + HA-tion
+#
+# Перед использованием замените entity_id на свои:
+#   climate.tion_breezer
+#   sensor.living_room_co2
+#   sensor.outdoor_temperature
+#   binary_sensor.living_room_window
+#   person.owner
+#   notify.mobile_app_phone
+#
+# Не включайте все примеры одновременно без проверки конфликтов.
+
+- alias: TION — управление скоростью по CO₂
+  id: tion_co2_control
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: sensor.living_room_co2
+      for: "00:03:00"
+  conditions:
+    - condition: template
+      value_template: >-
+        {{ states('sensor.living_room_co2') not in ['unknown', 'unavailable', 'none'] }}
+    - condition: state
+      entity_id: binary_sensor.living_room_window
+      state: "off"
+  actions:
+    - variables:
+        co2: "{{ states('sensor.living_room_co2') | int(0) }}"
+        night: "{{ now().hour >= 23 or now().hour < 7 }}"
+        requested_speed: >-
+          {% if co2 < 650 %} 1
+          {% elif co2 < 850 %} 2
+          {% elif co2 < 1100 %} 3
+          {% elif co2 < 1400 %} 4
+          {% else %} 5
+          {% endif %}
+        final_speed: >-
+          {% if night %}
+            {{ [requested_speed | int, 3] | min }}
+          {% else %}
+            {{ requested_speed | int }}
+          {% endif %}
+    - if:
+        - condition: state
+          entity_id: climate.tion_breezer
+          state: "off"
+      then:
+        - action: climate.turn_on
+          target:
+            entity_id: climate.tion_breezer
+        - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "{{ final_speed | string }}"
+
+- alias: TION — ночной режим
+  id: tion_night_mode
+  mode: restart
+  triggers:
+    - trigger: time
+      at: "23:00:00"
+  actions:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        hvac_mode: fan_only
+    - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "2"
+
+- alias: TION — дневной режим
+  id: tion_day_mode
+  mode: restart
+  triggers:
+    - trigger: time
+      at: "07:00:00"
+  actions:
+    - action: climate.turn_on
+      target:
+        entity_id: climate.tion_breezer
+    - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "3"
+
+- alias: TION — включить подогрев при холоде
+  id: tion_heater_enable_cold
+  mode: restart
+  triggers:
+    - trigger: numeric_state
+      entity_id: sensor.outdoor_temperature
+      below: 5
+      for: "00:10:00"
+  conditions:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: climate.tion_breezer
+          state: "off"
+  actions:
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        temperature: 18
+    - delay: "00:00:03"
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        hvac_mode: heat
+
+- alias: TION — выключить подогрев при потеплении
+  id: tion_heater_disable_warm
+  mode: restart
+  triggers:
+    - trigger: numeric_state
+      entity_id: sensor.outdoor_temperature
+      above: 8
+      for: "00:15:00"
+  conditions:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: climate.tion_breezer
+          state: "off"
+  actions:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        hvac_mode: fan_only
+
+- alias: TION — пауза при открытом окне
+  id: tion_pause_window_open
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.living_room_window
+      to: "on"
+      for: "00:01:00"
+  actions:
+    - action: climate.turn_off
+      target:
+        entity_id: climate.tion_breezer
+
+- alias: TION — включить после закрытия окна
+  id: tion_resume_window_closed
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.living_room_window
+      to: "off"
+      for: "00:02:00"
+  conditions:
+    - condition: state
+      entity_id: person.owner
+      state: home
+  actions:
+    - action: climate.turn_on
+      target:
+        entity_id: climate.tion_breezer
+    - delay: "00:00:03"
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.tion_breezer
+      data:
+        fan_mode: "2"
+
+- alias: TION — уведомить о недоступности
+  id: tion_unavailable_notification
+  mode: single
+  triggers:
+    - trigger: state
+      entity_id: climate.tion_breezer
+      to: unavailable
+      for: "00:10:00"
+  actions:
+    - action: notify.mobile_app_phone
+      data:
+        title: TION недоступен
+        message: >-
+          Бризер не отвечает более 10 минут. Проверьте Bluetooth,
+          TION Remote, питание и RSSI.
